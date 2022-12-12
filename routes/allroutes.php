@@ -15,10 +15,10 @@
 
 		$api->group(["middleware" => ["guest:api"]], function ($api) {
 			$api->post("login", "UsersController@login");
-			$api->post("create", "UsersController@create");
+			// $api->post("create", "UsersController@create");
 		});
-		$api->post("otp/send", "UsersController@sendOtp");
-		$api->post("otp/verify", "UsersController@verifyOTP");
+		// $api->post("otp/send", "UsersController@sendOtp");
+		// $api->post("otp/verify", "UsersController@verifyOTP");
 
 		// $api->get('email/verfiy','KidiApp\Http\Controllers\Auth\VerificationApiController@verify')->name('verification.verify');
 		// $api->get('email/verfiy','KidiApp\Mail\Userverification@build');
@@ -107,9 +107,9 @@
 		});
 	});
 
-	$api->get("languages/all", "GeneralController@getAllLanguages");
-	$api->get("categories/all", "GeneralController@getAllCategories");
-	$api->get("avatar/all", "GeneralController@getAllAvatar");
+	// $api->get("languages/all", "GeneralController@getAllLanguages");
+	// $api->get("categories/all", "GeneralController@getAllCategories");
+	// $api->get("avatar/all", "GeneralController@getAllAvatar");
 
 	$api->group(["prefix" => "internal", "namespace" => "Internal"], function (
 		$api
