@@ -6,10 +6,10 @@
 	$api->group(["prefix" => "user", "namespace" => "Users"], function ($api) {
 		// $api->post('create','UsersController@create');
 		$api->group(["middleware" => ["auth:api"]], function ($api) {
-			$api->get("detail", "UsersController@getUser");
-			$api->put("update", "UsersController@updateUser");
+			// $api->get("detail", "UsersController@getUser");
+			// $api->put("update", "UsersController@updateUser");
 			$api->post("update-profile-pic", "UsersController@updateProfilePic");
-			$api->post("password_update", "UsersController@updatePassword");
+			// $api->post("password_update", "UsersController@updatePassword");
 			$api->post("verify_pin", "UsersController@verifyPin");
 		});
 

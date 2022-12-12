@@ -24,7 +24,7 @@ class UserController extends Controller
         try {
             $data["password"] = bcrypt(mt_rand(999, 9999));
 
-            $data["password"] = bcrypt(123456);
+            // $data["password"] = bcrypt(123456);
             $user = User::create($data);
             // generate_mentor_code($user->id);//move this to job
             if ($user->email) {
@@ -207,6 +207,78 @@ class UserController extends Controller
                     401
                 );
             }
+        }
+    }
+
+    public function getUser(Request $request)
+    {
+        $user = auth()->user();
+        if ($user) {
+            $user->profile_picture = $user->profile_picture
+                ? config("constants.s3_base_url") . $user->profile_picture
+                : null;
+            return \Response::make($user
+            , 200);
+        }
+        else{
+            return \Response::make([
+                'message'     => 'User not found',
+                'status_code' => 401,
+            ], 401);
+        }
+    }
+
+    public function updateUser(Request $request)
+    {
+        if (auth()->user()) {
+            $userID = auth()->id();
+            $user = User::find($userID);
+        
+            if ($user) {
+                $data = $request->all();
+                $validator = $request->validate([
+                    "name" => "string|max:255",
+                    "nickname" => "string|max:50",
+                    "city" => "alpha|string|min:3|max:50",
+                    "country" => "alpha|string|min:4|max:50",
+                    "age" => "int|min:1|max:3|between:1,200",
+                    "gender" => "alpha|in:M,F,Other,m,f",
+                    "pin" => "int|digits_between:4,4",
+                    // 'mentor_code    ' => 'int|min:1000|max:9999',
+                    "dob" => "date",
+                ]);
+        
+                $data = collect($data);
+                $filtered = $data
+                    ->only([
+                        "name",
+                        "nickname",
+                        "about",
+                        "gender",
+                        "city",
+                        "coutnry",
+                        "dob",
+                        "age",
+                        "fb_data",
+                        "google_data",
+                        "twitter_data",
+                        "pin",
+                    ])
+                    ->all();
+                $user->fill($filtered)->save();
+                $user->profile_picture = $user->profile_picture
+                    ? config("constants.s3_base_url") . $user->profile_picture
+                    : null;
+                return \Response::make($user, 200);
+            }
+        } else {
+            return \Response::make(
+                [
+                    "message" => "User not found",
+                    "status_code" => 401,
+                ],
+                401
+            );
         }
     }
 

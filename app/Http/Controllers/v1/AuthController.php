@@ -72,4 +72,34 @@ class AuthController extends Controller
         $verifyOtp["token"] = auth()->tokenById($user->id);
         return \Response::make($verifyOtp, 200);
     }
+
+
+    function updatePassword(Request $request)
+    {
+        if (auth()->user()) {
+            $userID = auth()->user()->id;
+            $user = User::find($userID);
+
+            if ($user) {
+                $data = $request->all();
+                $user->password = bcrypt($data["password"]);
+                $user->save();
+                return \Response::make(
+                    [
+                        "message" => "Password updated successfully",
+                        "status_code" => 200,
+                    ],
+                    200
+                );
+            }
+        } else {
+            return \Response::make(
+                [
+                    "message" => "User not found",
+                    "status_code" => 401,
+                ],
+                401
+            );
+        }
+    }
 }
