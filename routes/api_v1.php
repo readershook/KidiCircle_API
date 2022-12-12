@@ -9,11 +9,19 @@ Route::get('/user', [UserController::class, 'testfunction']);
 
 
 
-Route::prefix('user')->group(function() {
+Route::prefix('user')->group(function () {
+
+	Route::middleware(['auth:api'])->group(function () {
+		Route::post('/password_update', [AuthController::class, 'updatePassword']);
+		Route::get('/detail', [UserController::class, 'getUser']);
+		Route::put('/update', [UserController::class, 'updateUser']);
+
+	});
+
 	Route::post('/create', [UserController::class, 'create']);
 	Route::post('/login', [UserController::class, 'login']);
 
-	Route::prefix('otp')->group(function() {
+	Route::prefix('otp')->group(function () {
 		Route::post('/send', [AuthController::class, 'sendOtp']);
 		Route::post('/verify', [AuthController::class, 'verifyOTP']);
 	});
