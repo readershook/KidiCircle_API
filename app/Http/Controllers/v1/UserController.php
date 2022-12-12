@@ -11,126 +11,134 @@ use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
-    const LOG_PREFIX = 'User Controller';
-
-  
-
+    const LOG_PREFIX = "User Controller";
 
     public function create(Request $request)
     {
         $data = $request->all();
         $validator = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|email|unique:users',
+            "name" => "required|string",
+            "email" => "required|string|email|unique:users",
         ]);
-        
-        try {
-            $data['password'] = bcrypt(mt_rand(999, 9999));
 
-            $data['password'] = bcrypt(123456);
+        try {
+            $data["password"] = bcrypt(mt_rand(999, 9999));
+
+            $data["password"] = bcrypt(123456);
             $user = User::create($data);
             // generate_mentor_code($user->id);//move this to job
             if ($user->email) {
-                $getOtpCode = (new Otp)->generateOtp($user->id, $user->email, 'email', '3600');
-                $email_data = array(
+                $getOtpCode = (new Otp())->generateOtp(
+                    $user->id,
+                    $user->email,
+                    "email",
+                    "3600"
+                );
+                $email_data = [
                     "name" => $user->name,
                     "email" => $user->email,
-                    "otp"=>$getOtpCode
-                );
+                    "otp" => $getOtpCode,
+                ];
 
                 /*
                     move otp code to Job 
                 //  */
-                Mail::send('mails.userverification', $email_data, function ($message) use ($email_data) 
-                {
-                    $message->to($email_data['email'], $email_data['name'])
-                        ->subject('Verify Email Address');
+                Mail::send("mails.userverification", $email_data, function (
+                    $message
+                ) use ($email_data) {
+                    $message
+                        ->to($email_data["email"], $email_data["name"])
+                        ->subject("Verify Email Address");
                 });
             }
         } catch (\Exception $th) {
-
-            \Log::error(self::LOG_PREFIX .'Error while creating user' ,['trace' => $th->__toString()]);
-            return \Response::make([
-                'message'     => 'Internal server error',
-                'status_code' => 500,
-            ], 500);
+            \Log::error(self::LOG_PREFIX . "Error while creating user", [
+                "trace" => $th->__toString(),
+            ]);
+            return \Response::make(
+                [
+                    "message" => "Internal server error",
+                    "status_code" => 500,
+                ],
+                500
+            );
         }
-        
+
         if ($user) {
             // $success['token'] =  $user->createToken('token')->accessToken;
             $success["message"] = "Registration successfull..";
             $success["status_code"] = 200;
-        
+
             return \Response::make($success, 200);
         }
-        
     }
-
-
 
     public function login(Request $request)
     {
         $data = $request->all();
-        if(!empty($data['provider']))
-        {
+        if (!empty($data["provider"])) {
             $validator = $request->validate([
-                'provider' => 'required|in:facebook,google,linkedin,twitter',
-                'provider_metadata' => 'required',
-                'provider_metadata.email' => 'required|string|email',
-                'provider_metadata.id' => 'required|alpha_num|max:30',
-                'provider_metadata.name' => 'required|string',
-                'provider_access_token'=>'required|min:100'
+                "provider" => "required|in:facebook,google,linkedin,twitter",
+                "provider_metadata" => "required",
+                "provider_metadata.email" => "required|string|email",
+                "provider_metadata.id" => "required|alpha_num|max:30",
+                "provider_metadata.name" => "required|string",
+                "provider_access_token" => "required|min:100",
             ]);
-            
+
             // if($validator->fails())
             //     throw new StoreResourceFailedException('Input Params are incorrect',$validator->errors());
-            
-            $linkedSocialAccount = LinkedSocialAccount::where('provider_name', $data['provider'])
-                ->where('provider_id', $data['provider_metadata']['id'])
+
+            $linkedSocialAccount = LinkedSocialAccount::where(
+                "provider_name",
+                $data["provider"]
+            )
+                ->where("provider_id", $data["provider_metadata"]["id"])
                 ->first();
             if ($linkedSocialAccount) {
                 $user = $linkedSocialAccount->user;
-            }
-            else {
-
+            } else {
                 $user = null;
 
-                if ($email = $data['provider_metadata']['email']) {
-                    $user = User::where('email', $email)->first();
+                if ($email = $data["provider_metadata"]["email"]) {
+                    $user = User::where("email", $email)->first();
                 }
 
-                if (! $user && $email) {
-                    
+                if (!$user && $email) {
                     $user = User::create([
-                        'name' => $data['provider_metadata']['name'],
-                        'email' => $data['provider_metadata']['email'],
+                        "name" => $data["provider_metadata"]["name"],
+                        "email" => $data["provider_metadata"]["email"],
                     ]);
 
                     $user->email_verified_at = date("Y-m-d g:i:s");
-                    
-                    switch($data['provider'])
-                    {
-                        case 'facebook':
-                            $user->fb_data = json_encode($data['provider_metadata']);
+
+                    switch ($data["provider"]) {
+                        case "facebook":
+                            $user->fb_data = json_encode(
+                                $data["provider_metadata"]
+                            );
                             break;
-                        case 'google':
-                            $user->google_data = json_encode($data['provider_metadata']);
+                        case "google":
+                            $user->google_data = json_encode(
+                                $data["provider_metadata"]
+                            );
                             break;
-                        case 'twitter':
-                            $user->twitter_data = json_encode($data['provider_metadata']);
+                        case "twitter":
+                            $user->twitter_data = json_encode(
+                                $data["provider_metadata"]
+                            );
                             break;
                     }
                     $user->save();
                 }
                 $user->linkedSocialAccounts()->create([
-                    'provider_id' => $data['provider_metadata']['id'],
-                    'provider_name' => $data['provider'],
+                    "provider_id" => $data["provider_metadata"]["id"],
+                    "provider_name" => $data["provider"],
                 ]);
             }
 
-            $success['token'] =  $user->createToken('token')->accessToken;
-            return \Response::make($success
-                , 200);
+            $success["token"] = $user->createToken("token")->accessToken;
+            return \Response::make($success, 200);
         }
         // elseif(!empty($data['otp']))
         // {
@@ -138,23 +146,18 @@ class UserController extends Controller
         //         'email' => 'required|string|email',
         //         'otp' => 'required|digits:4'
         //     ]);
-
         //     if($validator->fails()){
         //         throw new StoreResourceFailedException('Input Params are incorrect',$validator->errors());
         //     }
-
         //     $user = User::where('email',$data['email'])->first();
-            
         //     $verifyOtp = false;
         //     if($user)
         //         $verifyOtp = (new Otp)->verifyOtp($user->id, $data['email'], 'email', $data['otp']);
-
         //     if($verifyOtp)
         //     {
         //         $date = date("Y-m-d g:i:s");
         //         $user->email_verified_at = $date; // to enable the “email_verified_at field of that user be a current time stamp by mimicing the must verify email feature
         //         $user->save();
-
         //         $success['token'] =  $user->createToken('token')->accessToken;
         //         return \Response::make($success
         //             , 200);
@@ -167,54 +170,55 @@ class UserController extends Controller
         //         ], 401);
         //     }
         // }
-        else
-        {
+        else {
             $validator = $request->validate([
-                'email' => 'required|string|email',
-                'password' => 'required'
+                "email" => "required|string|email",
+                "password" => "required",
             ]);
-            
+
             // if($validator->fails()){
             //     throw new StoreResourceFailedException('Input Params are incorrect',$validator->errors());
             // }
-    
-            $credentials = request(['email', 'password']);
-            
-            if(!$token = auth()->attempt($credentials)){
-                return \Response::make([
-                    'message'     => 'Wrong credentials.',
-                    'status_code' => 401,
-                ], 401);
+
+            $credentials = request(["email", "password"]);
+
+            if (!($token = auth()->attempt($credentials))) {
+                return \Response::make(
+                    [
+                        "message" => "Wrong credentials.",
+                        "status_code" => 401,
+                    ],
+                    401
+                );
             }
 
-  // return $this->respondWithToken($token);
-  //           echo $token;die;
+            // return $this->respondWithToken($token);
+            //           echo $token;die;
             $user = auth()->user();
-            if($user->email_verified_at !== NULL)
-            {
-                $success['token'] =  $token;
-                return \Response::make($success
-                    , 200);
-            }
-            else{
-                return \Response::make([
-                    'message'     => 'Please Verify Email.',
-                    'status_code' => 401,
-                ], 401);
+            if ($user->email_verified_at !== null) {
+                $success["token"] = $token;
+                return \Response::make($success, 200);
+            } else {
+                return \Response::make(
+                    [
+                        "message" => "Please Verify Email.",
+                        "status_code" => 401,
+                    ],
+                    401
+                );
             }
         }
     }
 
-
-     protected function respondWithToken($token)
+    protected function respondWithToken($token)
     {
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60
+            "access_token" => $token,
+            "token_type" => "bearer",
+            "expires_in" =>
+                auth("api")
+                    ->factory()
+                    ->getTTL() * 60,
         ]);
     }
-
-
-
 }
