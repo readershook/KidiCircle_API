@@ -55,7 +55,7 @@ class UserController extends Controller
             \Log::error(self::LOG_PREFIX . "Error while creating user", [
                 "trace" => $th->__toString(),
             ]);
-            return \Response::make(
+            return response()->json(
                 [
                     "message" => "Internal server error",
                     "status_code" => 500,
@@ -69,7 +69,7 @@ class UserController extends Controller
             $success["message"] = "Registration successfull..";
             $success["status_code"] = 200;
 
-            return \Response::make($success, 200);
+            return response()->json($success, 200);
         }
     }
 
@@ -138,7 +138,7 @@ class UserController extends Controller
             }
 
             $success["token"] = $user->createToken("token")->accessToken;
-            return \Response::make($success, 200);
+            return response()->json($success, 200);
         }
         // elseif(!empty($data['otp']))
         // {
@@ -159,12 +159,12 @@ class UserController extends Controller
         //         $user->email_verified_at = $date; // to enable the “email_verified_at field of that user be a current time stamp by mimicing the must verify email feature
         //         $user->save();
         //         $success['token'] =  $user->createToken('token')->accessToken;
-        //         return \Response::make($success
+        //         return response()->json($success
         //             , 200);
         //     }
         //     else
         //     {
-        //         return \Response::make([
+        //         return response()->json([
         //             'message'     => 'Invalid OTP',
         //             'status_code' => 401,
         //         ], 401);
@@ -183,7 +183,7 @@ class UserController extends Controller
             $credentials = request(["email", "password"]);
 
             if (!($token = auth()->attempt($credentials))) {
-                return \Response::make(
+                return response()->json(
                     [
                         "message" => "Wrong credentials.",
                         "status_code" => 401,
@@ -197,9 +197,9 @@ class UserController extends Controller
             $user = auth()->user();
             if ($user->email_verified_at !== null) {
                 $success["token"] = $token;
-                return \Response::make($success, 200);
+                return response()->json($success, 200);
             } else {
-                return \Response::make(
+                return response()->json(
                     [
                         "message" => "Please Verify Email.",
                         "status_code" => 401,
@@ -217,14 +217,15 @@ class UserController extends Controller
             $user->profile_picture = $user->profile_picture
                 ? config("constants.s3_base_url") . $user->profile_picture
                 : null;
-            return \Response::make($user
-            , 200);
-        }
-        else{
-            return \Response::make([
-                'message'     => 'User not found',
-                'status_code' => 401,
-            ], 401);
+            return response()->json($user, 200);
+        } else {
+            return response()->json(
+                [
+                    "message" => "User not found",
+                    "status_code" => 401,
+                ],
+                401
+            );
         }
     }
 
@@ -269,10 +270,10 @@ class UserController extends Controller
                 $user->profile_picture = $user->profile_picture
                     ? config("constants.s3_base_url") . $user->profile_picture
                     : null;
-                return \Response::make($user, 200);
+                return response()->json($user, 200);
             }
         } else {
-            return \Response::make(
+            return response()->json(
                 [
                     "message" => "User not found",
                     "status_code" => 401,
@@ -280,6 +281,30 @@ class UserController extends Controller
                 401
             );
         }
+    }
+
+    public function updateProfilePic(Request $request)
+    {
+        $request->validate([
+            "file" => "required|file|mimes:jpg,jpeg,png",
+        ]);
+        $user = auth()->user();
+        $file_path = "usr/" . $user->id;
+        $file_name = uniqid("img-") . "-" . $request->file->getClientOriginalName();
+        $full_file_path = $file_path . "/" . $file_name;
+        \Storage::disk("s3")->put(
+            $full_file_path,
+            file_get_contents($request->file->getRealPath())
+        );
+        $user->profile_picture = $full_file_path;
+        $user->save();
+        return response()->json(
+            [
+                "message" => "Profile Picture Updated Successfully",
+                "status_code" => 200,
+            ],
+            200
+        );
     }
 
     protected function respondWithToken($token)

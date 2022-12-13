@@ -15,6 +15,7 @@ Route::prefix('user')->group(function () {
 		Route::post('/password_update', [AuthController::class, 'updatePassword']);
 		Route::get('/detail', [UserController::class, 'getUser']);
 		Route::put('/update', [UserController::class, 'updateUser']);
+		Route::post('/update-profile-pic', [UserController::class, 'updateProfilePic']);
 
 	});
 
@@ -26,6 +27,16 @@ Route::prefix('user')->group(function () {
 		Route::post('/verify', [AuthController::class, 'verifyOTP']);
 	});
 	
+
+});
+
+
+
+Route::prefix('kids')->group(function () {
+	Route::post('/add', [KidsController::class, 'createKids']);
+	Route::get('/list', [KidsController::class, 'listKids']);
+	Route::post('/addcontent', [KidsController::class, 'addcontent']);
+	Route::delete('/removecontent', [KidsController::class, 'removecontent']);
 
 });
 
