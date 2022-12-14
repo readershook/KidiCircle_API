@@ -3,7 +3,7 @@
 
 
 use App\Http\Controllers\v1\UserController;
-use App\Http\Controllers\v1\{CommonController, AuthController};
+use App\Http\Controllers\v1\{CommonController, AuthController, KidsController};
  
 Route::get('/user', [UserController::class, 'testfunction']);
 
@@ -16,6 +16,8 @@ Route::prefix('user')->group(function () {
 		Route::get('/detail', [UserController::class, 'getUser']);
 		Route::put('/update', [UserController::class, 'updateUser']);
 		Route::post('/update-profile-pic', [UserController::class, 'updateProfilePic']);
+		Route::post('/verify_pin', [UserController::class, 'verifyPin']);
+		
 
 	});
 
@@ -35,8 +37,9 @@ Route::prefix('user')->group(function () {
 Route::prefix('kids')->group(function () {
 	Route::post('/add', [KidsController::class, 'createKids']);
 	Route::get('/list', [KidsController::class, 'listKids']);
-	Route::post('/addcontent', [KidsController::class, 'addcontent']);
-	Route::delete('/removecontent', [KidsController::class, 'removecontent']);
+	Route::post('/addcontent', [KidsController::class, 'addContent']);
+	Route::delete('/removecontent', [KidsController::class, 'removeContent']);
+	Route::put('/{id}', [KidsController::class, 'updateKidInfo']);
 
 });
 

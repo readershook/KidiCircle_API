@@ -1,6 +1,6 @@
 <?php
 	$api->group(["middleware" => ["auth:api"]], function ($api) {
-		$api->post("password/reset", "Users\UsersController@passwordReset");
+		// $api->post("password/reset", "Users\UsersController@passwordReset");
 	});
 
 	$api->group(["prefix" => "user", "namespace" => "Users"], function ($api) {
@@ -14,7 +14,7 @@
 		});
 
 		$api->group(["middleware" => ["guest:api"]], function ($api) {
-			$api->post("login", "UsersController@login");
+			// $api->post("login", "UsersController@login");
 			// $api->post("create", "UsersController@create");
 		});
 		// $api->post("otp/send", "UsersController@sendOtp");
@@ -26,10 +26,10 @@
 	$api->group(["prefix" => "kids"], function ($api) {
 		// Use this route group for v1
 		$api->group(["middleware" => ["auth:api"]], function ($api) {
-			$api->post("add", "KidsController@createKids");
-			$api->get("list", "KidsController@listKids");
-			$api->post("addcontent", "KidsController@addcontent");
-			$api->post("removecontent", "KidsController@removecontent");
+			// $api->post("add", "KidsController@createKids");
+			// $api->get("list", "KidsController@listKids");
+			// $api->post("addcontent", "KidsController@addcontent");
+			// $api->post("removecontent", "KidsController@removecontent");
 
 			//
 			// $api->post('approve/mentee/{id}','UsersController@updateUser');
