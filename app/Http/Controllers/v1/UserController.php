@@ -4,8 +4,6 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Validator;
-use Dingo\Api\Exception\StoreResourceFailedException;
 use App\Models\{Otp, User, LinkedSocialAccount};
 use Illuminate\Support\Facades\Mail;
 
@@ -306,7 +304,21 @@ class UserController extends Controller
             200
         );
     }
+    protected function verifyPin(Request $request)
+    {
+        $userID = auth()->id();
+        $request->validate([
+                'pin' => 'required|exists:users,pin,id,'.$userID,
+            ]);
+        return response()->json(
+            [
+                'message'     => 'Verified Successfully',
+                'status_code' => 200,
+            ],
+            200
+        );
 
+    }
     protected function respondWithToken($token)
     {
         return response()->json([
