@@ -1,9 +1,8 @@
 <?php
 
-
-
 use App\Http\Controllers\v1\UserController;
-use App\Http\Controllers\v1\{CommonController, AuthController, KidsController,Videostudio};
+use App\Http\Controllers\v1\{CommonController, AuthController, KidsController, Videostudio, ContentController};
+
  
 Route::get('/user', [UserController::class, 'testfunction']);
 
@@ -33,6 +32,16 @@ Route::prefix('user')->group(function () {
 });
 
 
+Route::prefix('content')->group(function () {
+	Route::post('/', [ContentController::class, 'save']);
+	Route::post('/assets', [ContentController::class, 'uploadAssets']);
+	Route::post('/{content_id}/slides', [ContentController::class, 'saveSlides']);
+	
+
+});
+
+
+
 
 Route::prefix('kids')->group(function () {
 	Route::post('/add', [KidsController::class, 'createKids']);
@@ -47,6 +56,7 @@ Route::prefix('kids')->group(function () {
 Route::get('/languages/all', [CommonController::class, 'getAllLanguages']);
 Route::get('/categories/all', [CommonController::class, 'getAllCategories']);
 Route::get('/avatar/all', [CommonController::class, 'getAllAvatar']);
+
 
 Route::prefix('video-studio')->group(function() {
 	Route::post('/acquire', [Videostudio::class, 'acquire']);
