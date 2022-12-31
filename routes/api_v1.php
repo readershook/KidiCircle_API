@@ -1,7 +1,8 @@
 <?php
 
 use App\Http\Controllers\v1\UserController;
-use App\Http\Controllers\v1\{CommonController, AuthController, KidsController, ContentController};
+use App\Http\Controllers\v1\{CommonController, AuthController, KidsController, Videostudio, ContentController};
+
  
 Route::get('/user', [UserController::class, 'testfunction']);
 
@@ -55,3 +56,13 @@ Route::prefix('kids')->group(function () {
 Route::get('/languages/all', [CommonController::class, 'getAllLanguages']);
 Route::get('/categories/all', [CommonController::class, 'getAllCategories']);
 Route::get('/avatar/all', [CommonController::class, 'getAllAvatar']);
+
+
+Route::prefix('video-studio')->group(function() {
+	Route::post('/acquire', [Videostudio::class, 'acquire']);
+	Route::post('/upload', [Videostudio::class, 'upload']);
+	Route::post('/merge', [Videostudio::class, 'merge']);
+	Route::post('/status', [Videostudio::class, 'status']);
+	Route::post('/test', [Videostudio::class, 'test']);
+
+});
