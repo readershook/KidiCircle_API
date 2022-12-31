@@ -42,8 +42,6 @@ class ContentController extends Controller
         $content->cover_image = $file_path;
         $content->save();
 
-        ConvertSlideToVideo::dispatch($slides->id);
-
 
         return response()->json([
             'status'=>200,
@@ -85,7 +83,7 @@ class ContentController extends Controller
     }
 
 
-    function saveSlides(Request $request, $content_id)
+    protected function saveSlides(Request $request, $content_id)
     {
         $request->validate([
             'slides'=> 'required|array|min:1'
@@ -104,13 +102,15 @@ class ContentController extends Controller
                 'slides'     => json_encode($request->slides),
             ]);
         } else {
-            $slides->slies = json_encode($request->slides);
+            $slides->slides = json_encode($request->slides);
             $slides->save();
         }
 
 
+        ConvertSlideToVideo::dispatch($slides->id);
+
         return response()->json([
-            'file_path'=>$file_path,
+            'content_id'=>$content_id,
             'message'=>'Content is uploaded and is beiing processed'
         ]);
     }
