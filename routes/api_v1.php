@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\v1\UserController;
 use App\Http\Controllers\v1\{CommonController, AuthController, KidsController, Videostudio, ContentController};
-
+use App\Http\Controllers\v1\Admin\{ContentController as AdminContentController};
  
 Route::get('/user', [UserController::class, 'testfunction']);
 
@@ -56,6 +56,19 @@ Route::prefix('kids')->group(function () {
 Route::get('/languages/all', [CommonController::class, 'getAllLanguages']);
 Route::get('/categories/all', [CommonController::class, 'getAllCategories']);
 Route::get('/avatar/all', [CommonController::class, 'getAllAvatar']);
+
+
+
+Route::prefix('admin')->group(function () {
+
+	Route::prefix('content')->group(function () {
+		Route::post('upload', [AdminContentController::class, 'uploadContentFile']);
+	});
+	
+});
+
+
+
 
 
 Route::prefix('video-studio')->group(function() {
