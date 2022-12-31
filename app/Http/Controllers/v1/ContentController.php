@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\{Contents, ContentCategories, TempFileLogs, ContentSlides};
-
+use App\Jobs\Content\ConvertSlideToVideo;
 class ContentController extends Controller
 {
     protected function save(Request $request)
@@ -41,6 +41,9 @@ class ContentController extends Controller
         
         $content->cover_image = $file_path;
         $content->save();
+
+        ConvertSlideToVideo::dispatch($slides->id);
+
 
         return response()->json([
             'status'=>200,
@@ -110,9 +113,6 @@ class ContentController extends Controller
             'file_path'=>$file_path,
             'message'=>'Content is uploaded and is beiing processed'
         ]);
-
-
-        echo "laksdjsajd";die;
     }
 
 
