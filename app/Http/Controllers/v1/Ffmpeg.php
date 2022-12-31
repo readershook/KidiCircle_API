@@ -18,6 +18,12 @@ class ffmpeg
                     $filepath = $directory."/temp".$i.".mp4";
                     $command = "/usr/bin/ffmpeg -y -i $filepath -vf scale=640:360 -strict -2 $directory/$i.mp4";
                     // echo $command."\n";exit;
+                    // audio concat
+                    //ffmpeg -i input1.wav -i input2.wav -i input3.wav -i input4.wav \
+                    // -filter_complex '[0:0][1:0][2:0][3:0]concat=n=4:v=0:a=1[out]' \
+                    // -map '[out]' output.wav
+                    // audio length in seconds
+                    // ffprobe -show_streams -select_streams a -v quiet /home/vipul/project/Kidi_API/storage/app/63976a1a98f31/1.mp3 | grep "duration=" | cut -d '=' -f 2
                     shell_exec(escapeshellcmd($command));
                     unlink($filepath);
                     $filepath = $directory."/".$i.".mp4";

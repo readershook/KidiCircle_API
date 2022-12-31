@@ -27,4 +27,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         'prefix'     => 'v1',
     ], function ($router) {
         require base_path('routes/api_v1.php');
-    });    
+    });
+    Route::get('phpmyinfo', function () {
+        phpinfo(); 
+    })->name('phpmyinfo');
