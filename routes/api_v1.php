@@ -1,9 +1,7 @@
 <?php
 
-
-
 use App\Http\Controllers\v1\UserController;
-use App\Http\Controllers\v1\{CommonController, AuthController, KidsController};
+use App\Http\Controllers\v1\{CommonController, AuthController, KidsController, ContentController};
  
 Route::get('/user', [UserController::class, 'testfunction']);
 
@@ -31,6 +29,16 @@ Route::prefix('user')->group(function () {
 	
 
 });
+
+
+Route::prefix('content')->group(function () {
+	Route::post('/', [ContentController::class, 'save']);
+	Route::post('/assets', [ContentController::class, 'uploadAssets']);
+	Route::post('/{content_id}/slides', [ContentController::class, 'saveSlides']);
+	
+
+});
+
 
 
 
