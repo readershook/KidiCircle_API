@@ -91,7 +91,7 @@ class ContentController extends Controller
         $user = auth()->user();
         $slides = ContentSlides::where([
             'content_id' => $content_id,
-            'created_by' => $user->id
+            // 'created_by' => $user->id
         ])->first();
 
         if (!$slides) {
@@ -106,7 +106,7 @@ class ContentController extends Controller
             $slides->save();
         }
 
-
+        
         ConvertSlideToVideo::dispatch($slides->id);
 
         return response()->json([
