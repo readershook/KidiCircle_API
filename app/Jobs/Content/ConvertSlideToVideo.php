@@ -45,18 +45,37 @@ class ConvertSlideToVideo implements ShouldQueue
         $directory = "/$folder/";
         $storage_path = storage_path();
         $input = "action=merge&resource_id=$folder&storage_path=$storage_path";
-
         $allSlides = json_decode($slides->slides, true);
         foreach ($allSlides as $key => $value) {
-            Storage::disk('local')->put($directory.$value["sequence"].".mp3", file_get_contents($value["audio_file"]));
+            
+            $audiofile = $directory.$value["sequence"].".mp3";
+            
+            if(isset($value["image_duration"]) && (int)$value["image_duration"]>0){
+                
+                Storage::disk('local')->put($audiofile, file_get_contents($value["audio_file"]));
+                $precise_audio_length = exec("ffprobe -show_streams -select_streams a -v quiet $storage_path/app$audiofile | grep \"duration=\" | cut -d '=' -f 2");
+                $audio_length = round($precise_audio_length);
+                $diff = (int)$value["image_duration"] - $precise_audio_length;
+                if($diff>0){
+                    $time = gmdate("H:i:s", (int)$value["image_duration"]);
+                    $imaudiofile = str_replace($value["sequence"].".mp3", $value["sequence"]."_v1.mp3", $audiofile);
+                    Storage::copy($audiofile, $imaudiofile);
+                    $command = "ffmpeg -y -i $storage_path/app$imaudiofile -vcodec copy -af apad -ss 00:00:00.000 -t $time $storage_path/app$audiofile";
+                    // echo "command= $command";
+                    exec($command);
+                    unlink("$storage_path/app$imaudiofile");
+                }
+                // exit;
+            }
+            else{
+                Storage::disk('local')->put($audiofile, file_get_contents($value["audio_file"]));
+            }
             Storage::disk('local')->put($directory.$value["sequence"].".jpg", file_get_contents($value["media_file"]));
         }
+        // exit;
         $app_path = app_path();
-        // var_dump(storage_path());
         $command = "/usr/bin/php $app_path/Http/Controllers/v1/Ffmpeg.php \"$input\"";
-        // echo $command;exit;
         exec ($command);
-        // sleep(5);
         $path = $directory."final.mp4";
         $fileExists = Storage::disk('local')->exists($path);
         $local_path = Storage::url('app'.$path);
@@ -69,5 +88,6 @@ class ConvertSlideToVideo implements ShouldQueue
                 $content->save();
             }
         }
+        Storage::deleteDirectory($folder);
     }
 }
