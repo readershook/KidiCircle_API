@@ -37,7 +37,8 @@ class ffmpeg
                     // audio length in seconds
                     // ffprobe -show_streams -select_streams a -v quiet /home/vipul/project/Kidi_API/storage/app/63976a1a98f31/1.mp3 | grep "duration=" | cut -d '=' -f 2
                     // shell_exec(escapeshellcmd($command));
-                    // unlink($filepath);
+                    
+                    unlink("$directory/$i.mp3");
                     unlink("$directory/temp$i.jpg");
                     unlink("$directory/temp$i.mp4");
                     $filepath = $directory."/".$i.".mp4";
