@@ -18,7 +18,7 @@ class ffmpeg
                     exec($command);
                     // echo $command."\n";exit;
                     // create video with no audio
-                    $command = "/usr/bin/ffmpeg -y -loop 1 -i $directory/temp$i.jpg -c:V libx264 -t 120 -pix_fmt yuv420p $directory/temp$i.mp4";
+                    $command = "/usr/bin/ffmpeg -y -loop 1 -i $directory/temp$i.jpg -c:V libx264 -t 300 -pix_fmt yuv420p $directory/temp$i.mp4";
                     shell_exec(escapeshellcmd($command));
                     // echo $command."\n";exit;
                     // Add audio to video
